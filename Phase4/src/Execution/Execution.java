@@ -917,6 +917,8 @@ public class Execution {
 			c.putStatic(c, (FieldRef)inst, v);
 
 		}
+                // INSTANCEOF
+	    case RuntimeConstants.opc_instanceof:// YOUR CODE HERE
 
 		// INVOCATIONS
 	    case RuntimeConstants.opc_invokeinterface: // YOUR CODE HERE
