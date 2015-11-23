@@ -880,7 +880,12 @@ public class Execution {
 
 		// NEW
             case RuntimeConstants.opc_new: // YOUR CODE HERE
-		
+		{
+			Class c = ClassList.getClass(className);
+			Object_ o (c);
+			Value ref = new ReferenceValue(o);
+			operandStack.push(ref);
+		}
 		// LOOKUPSWITCH
             case RuntimeConstants.opc_lookupswitch: 
 		LookupSwitch ls = (LookupSwitch)inst;
