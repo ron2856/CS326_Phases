@@ -855,11 +855,36 @@ public class Execution {
 		// CHECKCAST
 	    case RuntimeConstants.opc_checkcast:  // YOUR CODE HERE
 		
-		// FIELD RELATED 
+	// FIELD RELATED 
 	    case RuntimeConstants.opc_getfield: // YOUR CODE HERE
+		{
+			Value o1 = operandStack.pop();
+			Object_ obj = (ReferenceValue)o1.getValue();
+			operandStack.push(obj.getField((FieldRef)inst));
+			break;
+		}
 	    case RuntimeConstants.opc_getstatic: // YOUR CODE HERE
+		{
+			Class c = ClassList.getClass((ClassRef)inst.getClassName());
+			operandStack.push(c.getStatic((FieldRef)inst));
+			break;
+		}
 	    case RuntimeConstants.opc_putfield: // YOUR CODE HERE
-            case RuntimeConstants.opc_putstatic: // YOUR CODE HERE
+		{
+			Value v = operandStack.pop();
+			Value o1 = operandStack.pop();	
+			Object_ obj = (ReferenceValue)o1.getValue();
+			obj.putField((FieldRef)inst, v);
+			break;
+		}
+        case RuntimeConstants.opc_putstatic: // YOUR CODE HERE
+		{
+			Class c = ClassList.getClass((ClassRef)inst.getClassName());
+			Value v = operandStack.pop();
+			c.putStatic(c, (FieldRef)inst, v);
+
+		}
+		
 
 		// INSTANCEOF
 	    case RuntimeConstants.opc_instanceof:// YOUR CODE HERE
@@ -876,7 +901,24 @@ public class Execution {
 	    case RuntimeConstants.opc_areturn: 
 	    case RuntimeConstants.opc_ireturn: 
 	    case RuntimeConstants.opc_return: 
-            case RuntimeConstants.opc_lreturn: // YOUR CODE HERE
+        case RuntimeConstants.opc_lreturn: // YOUR CODE HERE
+		{	
+			if (currentMethod.getMethodName().equals("main"))
+				return;
+			else if (currentMEthod.getMethodName().equals("<clinit>"))
+			{
+				activationStack.pop();
+				return;
+			}
+			else
+			{
+				pc = activation.getReturnCode();
+				activation = activationStack.pop();
+				currentMethod = activation.getThisCode();
+				this_ = activation.getThis();
+			}
+			continue;
+		}
 
 		// NEW
             case RuntimeConstants.opc_new: // YOUR CODE HERE
