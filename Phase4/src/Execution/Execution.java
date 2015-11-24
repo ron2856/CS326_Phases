@@ -852,7 +852,8 @@ public class Execution {
 		    activation.setVar(va, varNo);
 		    break ;
 		}
-		// CHECKCAST
+		
+	// CHECKCAST
 	    case RuntimeConstants.opc_checkcast:  // YOUR CODE HERE
 		{
 			Value o1 = operandStack.peek(1);
@@ -869,24 +870,13 @@ public class Execution {
 	    case RuntimeConstants.opc_getfield: // YOUR CODE HERE
 		{
 			Value o1 = operandStack.pop();
-			if(o1.getType() != Value.s_reference)
-				Error.error("opc_getfield: ReferenceValue not on the stack");
-			if(o1.getValue().getThisClass().getClassName() != (FieldRef)inst.getClassName())
-				Error.error("opc.getField: ClassName does not match");
-			
 			Object_ obj = (ReferenceValue)o1.getValue();
-			
-			if (!(obj.getField((FieldRef)inst).getType() == v.getType() && v.getType() == Signature.stringSigToType(FieldRef)inst.getSignature()))
-				Error.error("opc.getField: Signature or field value does not match");
 			operandStack.push(obj.getField((FieldRef)inst));
 			break;
 		}
 	    case RuntimeConstants.opc_getstatic: // YOUR CODE HERE
 		{
 			Class c = ClassList.getClass((ClassRef)inst.getClassName());
-			
-			if (c.getStatic((FieldRef)inst).getType() != Signature.stringSigToType(FieldRef)inst.getSignature())
-				Error.error("opc.putStatic: Signature or field value does not match");
 			operandStack.push(c.getStatic((FieldRef)inst));
 			break;
 		}
@@ -894,16 +884,7 @@ public class Execution {
 		{
 			Value v = operandStack.pop();
 			Value o1 = operandStack.pop();	
-			if (o1.getType() != Value.s_reference)
-				Error.error("opc.putfield: ReferenceValue not on the stack");
-			if(o1.getValue().getThisClass().getClassName() != (FieldRef)inst.getClassName())
-				Error.error("opc.putfield: ClassName does not match");
-			
 			Object_ obj = (ReferenceValue)o1.getValue();
-			
-			if (!(obj.getField((FieldRef)inst).getType() == v.getType() && v.getType() == Signature.stringSigToType(FieldRef)inst.getSignature()))
-				Error.error("opc.putfield: Signature or field value does not match");
-			
 			obj.putField((FieldRef)inst, v);
 			break;
 		}
@@ -911,13 +892,12 @@ public class Execution {
 		{
 			Class c = ClassList.getClass((ClassRef)inst.getClassName());
 			Value v = operandStack.pop();
-			
-			if (!(c.getStatic((FieldRef)inst).getType() == v.getType() && v.getType() == Signature.stringSigToType(FieldRef)inst.getSignature()))
-				Error.error("opc.putStatic: Signature or field value does not match");
 			c.putStatic(c, (FieldRef)inst, v);
 
 		}
-                // INSTANCEOF
+		
+
+		// INSTANCEOF
 	    case RuntimeConstants.opc_instanceof:// YOUR CODE HERE
 
 		// INVOCATIONS
@@ -932,10 +912,31 @@ public class Execution {
 	    case RuntimeConstants.opc_areturn: 
 	    case RuntimeConstants.opc_ireturn: 
 	    case RuntimeConstants.opc_return: 
-            case RuntimeConstants.opc_lreturn: // YOUR CODE HERE
+        case RuntimeConstants.opc_lreturn: // YOUR CODE HERE
+		{	
+			if (currentMethod.getMethodName().equals("main"))
+				return;
+			else if (currentMEthod.getMethodName().equals("<clinit>"))
+			{
+				activationStack.pop();
+				return;
+			}
+			else
+			{
+				pc = activation.getReturnCode();
+				activation = activationStack.pop();
+				currentMethod = activation.getThisCode();
+				this_ = activation.getThis();
+			}
+			continue;
+		}
 
 		// NEW
-            case RuntimeConstants.opc_new: // YOUR CODE HERE
+		case RuntimeConstants.opc_new: // YOUR CODE HERE
+		{
+			Class c = ClassList.getClass((ClassRef)inst.getClassName());
+			operandStack.push(new ReferenceValue(new Object_(c)));
+		}
 		
 		// LOOKUPSWITCH
             case RuntimeConstants.opc_lookupswitch: 
